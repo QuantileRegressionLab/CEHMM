@@ -1,6 +1,6 @@
 # README file
 
-The scripts in this repository are designed to evaluate the performance of the research detailed in [\textit{Quantile and Expectile Copula-Based Hidden Markov Regression Models for the Analysis of the Cryptocurrency Market} by Foroni, Merlo, and Petrella (2024)](https://doi.org/10.48550/arXiv.2307.06400). This evaluation includes a simulation study of copula-based quantile and expectile Hidden Markov Models (CQHMM and CEHMM) and an application of these models to a dataset of financial returns.
+The scripts in this repository are designed to evaluate the performance of the research detailed in [*Quantile and Expectile Copula-Based Hidden Markov Regression Models for the Analysis of the Cryptocurrency Market* by Foroni, Merlo, and Petrella (2024)](https://doi.org/10.48550/arXiv.2307.06400). This evaluation includes a simulation study of copula-based quantile and expectile Hidden Markov Models (CQHMM and CEHMM) and an application of these models to a dataset of financial returns.
 
 
 ## Prerequisites
@@ -12,61 +12,74 @@ The scripts in this repository are designed to evaluate the performance of the r
 
 ### R Packages used (version in parentheses)
 
-\begin{itemize}
-\item MASS (7.3.60.2)
-\item mvtnorm (1.2.4)
-\item copula (1.1.3)
-\item skewt (1.0)
-\item foreach (1.5.2)
-\item doParallel (1.0.17)
-\item parallel (4.4.0)
-\item ald (1.3.1)
-\item quantreg (5.97)
-\item expectreg (0.52)
-\item mclust (6.1.1)
-\item cluster (2.1.6)
-\item markovchain (0.9.5)
-\item rqPen (4.1)
-\item lqmm (1.5.8)
-\item stats4 (4.4.0)
-\item sn (2.1.1)
-\item tidyverse (2.0.0)
-\item ggplot2 (3.5.1)
-\item PerformanceAnalytics (2.0.4)
-\item tseries (0.10-56)
-\item stats (4.4.0)
-\item reshape2 (1.4.4)
-\item scales (1.3.0)
-\item ggpubr (0.6.0)
-\item dotwhisker (0.8.2)
-\item patchwork (1.2.0)
-\item plotly (4.10.4)
+- MASS (7.3.60.2)
+- mvtnorm (1.2.4)
+- copula (1.1.3)
+- skewt (1.0)
+- foreach (1.5.2)
+- doParallel (1.0.17)
+- parallel (4.4.0)
+- ald (1.3.1)
+- quantreg (5.97)
+- expectreg (0.52)
+- mclust (6.1.1)
+- cluster (2.1.6)
+- markovchain (0.9.5)
+- rqPen (4.1)
+- lqmm (1.5.8)
+- stats4 (4.4.0)
+- sn (2.1.1)
+- tidyverse (2.0.0)
+- ggplot2 (3.5.1)
+- PerformanceAnalytics (2.0.4)
+- tseries (0.10-56)
+- stats (4.4.0)
+- reshape2 (1.4.4)
+- scales (1.3.0)
+- ggpubr (0.6.0)
+- dotwhisker (0.8.2)
+- patchwork (1.2.0)
+- plotly (4.10.4)
 
-\end{itemize}
 
 ## Simulation_1Y.R
 
-This script evaluates the performance of the CQHMM and CEHMM models generating data from a bivariate two-states HMM using the following data generating process for $t = 1,...,T$,
-\begin{equation}
-\boldsymbol Y_t = \boldsymbol X_t \boldsymbol \beta_k + \boldsymbol \epsilon_{t,k}, \quad S_t = k
-\end{equation}
-where $\boldsymbol X_t = (1, X_t)'$ and the true values of the regression parameters are
-$$\boldsymbol \beta_1 = \begin{pmatrix}
-	-2 & 3 \\
-	1 & -2
-\end{pmatrix} \quad  \textnormal{and} \quad  \boldsymbol \beta_2 =  \begin{pmatrix}
-	3 & -2 \\
-	-2 & 1
-\end{pmatrix}.$$
+This script evaluates the performance of the CQHMM and CEHMM models generating data from a bivariate two-states HMM using the following data generating process for \( t = 1,...,T \),
 
-It is possibile to choose between two different scenarios for the transition probability matrix, scenario 1: $\boldsymbol \Pi = \begin{pmatrix}
-	0.9 & 0.1 \\
-	0.1 & 0.9
-\end{pmatrix},$
-scenario 2: $\boldsymbol \Pi = \begin{pmatrix}
-	0.7 & 0.3 \\
-	0.3 & 0.7
-\end{pmatrix}.$
+\[
+\boldsymbol{Y}_t = \boldsymbol{X}_t \boldsymbol{\beta}_k + \boldsymbol{\epsilon}_{t,k}, \quad S_t = k
+\]
+
+where \(\boldsymbol{X}_t = (1, X_t)'\) and the true values of the regression parameters are
+
+\[
+\boldsymbol{\beta}_1 = \begin{pmatrix}
+    -2 & 3 \\
+    1 & -2
+\end{pmatrix} \quad \text{and} \quad \boldsymbol{\beta}_2 = \begin{pmatrix}
+    3 & -2 \\
+    -2 & 1
+\end{pmatrix}.
+\]
+
+It is possible to choose between two different scenarios for the transition probability matrix, scenario 1: 
+
+\[
+\boldsymbol{\Pi} = \begin{pmatrix}
+    0.9 & 0.1 \\
+    0.1 & 0.9
+\end{pmatrix},
+\]
+
+scenario 2: 
+
+\[
+\boldsymbol{\Pi} = \begin{pmatrix}
+    0.7 & 0.3 \\
+    0.3 & 0.7
+\end{pmatrix}.
+\]
+
 
 ### Running the Script
 
@@ -76,19 +89,26 @@ scenario 2: $\boldsymbol \Pi = \begin{pmatrix}
 4.  Define simulation setting by choosing the number of observations (`n`), the errors distribution (`dist`),       the transition probability matrix (`gamma_setting`), the number of states (`k`), the number of restarts (`R`), the number of simulations (`MM`), the vector of quantiles or expectiles considered (`tauvec`) and the copula to be used (`wcop`).
 
 
-## Simulation_5Y.R
+## Simulation_4Y.R
 
-This script evaluates the performance of the CQHMM and CEHMM models considering a five-dimensional response variable ($d=5$), one sample size ($T = 1000$) and two explanatory variables, $X^{(1)}_t$ and $X^{(2)}_t$, sampled from independent standard Normal distributions. Observations are drawn from a three-state HMM using the following data generating process for $t = 1,\dots,T$,
-\begin{equation}
-\boldsymbol Y_t = \boldsymbol X_t \boldsymbol \beta_k + \boldsymbol \epsilon_{t,k}, \quad S_t = k
-\end{equation}
-where $\boldsymbol X_t = (1, X_t)'$ and the true values of the regression parameters are drawn from the following Uniform distributions: $\boldsymbol \beta_1 \sim \mathcal{U}(-4, -1)$, $\boldsymbol \beta_2 \sim \mathcal{U}(1, 3)$ and $\boldsymbol \beta_3 \sim \mathcal{U}(3, 6)$.
+This script evaluates the performance of the CQHMM and CEHMM models considering a four-dimensional response variable (\(d=4\)), one sample size (\(T = 1000\)) and three explanatory variables, \(X^{(1)}_t\), \(X^{(2)}_t\) and \(X^{(3)}_t\) sampled from independent standard Normal distributions. Observations are drawn from a three-state HMM using the following data generating process for \(t = 1,\dots,T\),
 
-We consider the following transition probability matrix: $\boldsymbol \Pi = \begin{pmatrix}
-	0.8 & 0.1 & 0.1 \\
-	0.1 & 0.8 & 0.1 \\
-	0.1 & 0.1 & 0.8
-\end{pmatrix}.$
+\[
+\boldsymbol{Y}_t = \boldsymbol{X}_t \boldsymbol{\beta}_k + \boldsymbol{\epsilon}_{t,k}, \quad S_t = k
+\]
+
+where \(\boldsymbol{X}_t = (1, X^{(1)}_t, X^{(2)}_t, X^{(3)}_t)'\) and the true values of the state-specific intercepts are drawn from Uniform distributions defined by: \(\mathcal{U}(-3, -1)\), \(\mathcal{U}(-1, 2)\), and \(\mathcal{U}(3, 5)\), while slope parameters are generated from the following uniform distribution for each state: \( \mathcal{U}(-2, 2)\).
+
+We consider the following transition probability matrix:
+
+\[
+\boldsymbol{\Pi} = \begin{pmatrix}
+    0.9 & 0.05 & 0.05 \\
+    0.05 & 0.9 & 0.05 \\
+    0.05 & 0.05 & 0.9
+\end{pmatrix}.
+\]
+
 
 ### Running the Script
 
@@ -141,14 +161,13 @@ This script contains the code to reproduce Table S14, Table S15, Figure S3, Figu
 
 ### Script Description
 The script `Figures_out.R` generates the followings:
-\begin{itemize}
-\item Table S14: Descriptive statistics.
-	\item Table S15: Empirical correlation matrix.
-	\item Figure S3: QQ plots of standardized residuals.
-	\item Figure S2: Cryptocurrencies daily normalized prices and log return series.
-\item Figure 1: Time series of returns for the five cryptocurrencies colored according to the two-
-state fitted models.
-\end{itemize}
+
+- Table S14: Descriptive statistics.
+- Table S15: Empirical correlation matrix.
+- Figure S3: QQ plots of standardized residuals.
+- Figure S2: Cryptocurrencies daily normalized prices and log return series.
+- Figure 1: Time series of returns for the five cryptocurrencies colored according to the two-state fitted models.
+
 
 
 
