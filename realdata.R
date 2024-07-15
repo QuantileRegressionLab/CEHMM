@@ -1,8 +1,10 @@
-rm(list = ls())
-lib = getwd()
-repos = "http://cran.uk.r-project.org"
-.libPaths(c(.libPaths(), lib))
+# Clear the workspace
+rm(list=ls())
 
+# Define library path
+# lib = getwd()
+# repos = "http://cran.uk.r-project.org"
+# .libPaths(c(.libPaths(), lib))
 
 library(foreach)
 library(parallel)
@@ -30,22 +32,33 @@ ci_fun <- function(centre, stder){
 #### Dataset Upload ####
 load("data/returns.RData")
 ret_cexp <- ret.df
-source("MainFunctions.R")
+
+### Let's choose the model #####
+# model_reg <- "expectile"
+model_reg <- "quantile"
+if(model_reg == "expectile"){
+  source("MainFunctions_cexp.R")
+} else {
+  source("MainFunctions_cquant.R")
+}
 
 ##### Server #####
 ncores = detectCores()
 ncores
-#cl = makeCluster(ncores, outfile="")  #to print
 cl = makeCluster(ncores-1) #without print
 registerDoParallel(cl)
 invisible(clusterEvalQ(cl = cl, .libPaths(getwd())))
-invisible(clusterEvalQ(cl = cl, source("MainFunctions.R")))
+# invisible(clusterEvalQ(cl = cl, .libPaths(.libPaths())))
+if(model_reg == "expectile"){
+  invisible(clusterEvalQ(cl = cl, source("MainFunctions_cexp.R")))
+} else {
+  invisible(clusterEvalQ(cl = cl, source("MainFunctions_cquant.R")))
+}
+parallel::clusterSetRNGStream(cl, 8693)
 
 #Dependent variables: returns_cryptos
 #Indepedent variables: returns_indexes
 
-model = "expectile"
-# model = "quantile"
 dims = 5 #number of dependent variables
 ys = as.matrix(ret_cexp[2:dim(ret_cexp)[1], 1:dims])
 xs = as.matrix(ret_cexp[1:dim(ret_cexp)[1]-1,-c(1:dims)]) #t-1
@@ -55,13 +68,15 @@ K = 2 #number of states
 #K = 3
 n = dim(ys)[1] #sample size
 B = 1e3 #bootstrap sample
-R = 50 # restart
-tauvec = c(.01, .05, .5, .95, .99)
+R = 10 # restart
+tauvec = c(.05, .5, .95)
 n.tau = length(tauvec)
 multivariate <- list()
 set.seed(080693)
 
+# wcop = "norm" #  norm or t
 wcop = "t"
+
 
 ### Variable Inizialitazion ####
 tau_exp <- matrix(NA, nrow = n.tau, ncol = dims)
@@ -81,6 +96,7 @@ df.est  <- matrix(NA, n.tau, K, dimnames = list(as.character(tauvec), NULL))
 delta.est <- matrix(NA, nrow = n.tau, ncol = K)
 gamma.est <- array(NA, dim = c(K,K,n.tau))
 model_boot <- list()
+
 ######## Restart procedure ########
 tmp.llk = matrix(NA, R, n.tau)
 
@@ -129,9 +145,7 @@ for (t in 1:n.tau) {
     }
     
 
-    
-    if(model == "expectile"){
-      tryCatch(em.hmm.expreg(y = ys, X_ = xs_1, m = K, dd = dims, delta=init, gamma=gamma.s,
+      tryCatch(em.hmm.cqereg(y = ys, X_ = xs_1, m = K, dd = dims, delta=init, gamma=gamma.s,
                              beta=beta.init,
                              cpar = cpar.init, df_cop = df_init, 
                              sigma=sigma.s, tau = tau_d, which_cop = wcop,
@@ -139,16 +153,7 @@ for (t in 1:n.tau) {
                error=function(e) {
                  NA
                })
-    } else if(model == "quantile"){
-      tryCatch(em.hmm.quantreg(y = ys, X_ = xs_1, m = K, dd = dims, delta=init, gamma=gamma.s,
-                               beta=beta.init,
-                               cpar = cpar.init, df_cop = df_init,
-                               sigma=sigma.s, tau = tau_d, which_cop = wcop,
-                               tol=10^-6, maxiter=400, trace=F),
-               error=function(e) {
-                 NA
-               })
-    }
+  
     
   } #r loop
   
@@ -179,10 +184,10 @@ for (t in 1:n.tau) {
   Corr_mat[[t]] <- lapply(model[[t]]$cpar, p2P)
 }  # t loop
 
-if(model == "expectile"){
-  save.image(file = "realdata_cexp_2K_t.RData")
-} else if(model == "quantile"){
-  save.image(file = "realdata_cquant_2K_t.RData")
+if(model_reg == "expectile"){
+  save.image(file = paste0("realdata_cexp_",K,"K_",wcop,".RData"))
+} else if(model_reg == "quantile"){
+  save.image(file = paste0("realdata_cquant_",K,"K_",wcop,".RData"))
 }
 
 
@@ -202,13 +207,13 @@ for (t in 1:n.tau) {
     
     # We generate from a normal or a t copula
     
-    boot_dt <- expreg.hsmm.multi.real(reg = xs_1, ns = n, m = K, dd = dims, delta = delta.est[t,], gamma = matrix(c(0,1,1,0),2,2,byrow=TRUE),
+    boot_dt <- hsmm.multi.real(reg = xs_1, ns = n, m = K, dd = dims, delta = delta.est[t,], gamma = matrix(c(0,1,1,0),2,2,byrow=TRUE),
                                       beta = model[[t]]$betas, df = model[[t]]$df, Sigma = Corr_mat[[t]], sigma = model[[t]]$sigma,
                                       tau = tau_d, d=d, wcop = wcop, cpar = model[[t]]$cpar)
     
     Y = boot_dt$series 
 
-    tryCatch(em.hmm.expreg(y = Y, X_ = xs_1, m = K, dd = dims, delta=delta.est[t,], gamma=gamma.est[,,t],
+    tryCatch(em.hmm.cqereg(y = Y, X_ = xs_1, m = K, dd = dims, delta=delta.est[t,], gamma=gamma.est[,,t],
                            beta = model[[t]]$betas,
                            cpar = model[[t]]$cpar, df_cop = model[[t]]$df,
                            sigma=model[[t]]$sigma, tau = tau_d, which_cop = wcop, 
@@ -224,10 +229,10 @@ for (t in 1:n.tau) {
 time.2 <- Sys.time()
 end.time <- time.2 - time.1
 
-if(model == "expectile"){
-  save.image(file = "realdata_cexp_2K_t.RData")
-} else if(model == "quantile"){
-  save.image(file = "realdata_cquant_2K_t.RData")
+if(model_reg == "expectile"){
+  save.image(file = paste0("realdata_cexp_",K,"K_",wcop,".RData"))
+} else if(model_reg == "quantile"){
+  save.image(file = paste0("realdata_cquant_",K,"K_",wcop,".RData"))
 }
 
 ### Save estimates
@@ -236,7 +241,7 @@ betas.b <- replicate(K, array(NA, dim = c(nregs_1, dims, B)), simplify = F)
 betas.b.est <- betas.b.std <- replicate(n.tau, array(NA, dim = c(nregs_1, dims, K), dimnames = list(c("Intercept", colnames(xs)), colnames(ys), as.character(paste("K =", 1:K)))), simplify = F)
 cpar.b <- replicate(K, matrix(NA, nrow = B, ncol = length(model_boot[[1]][[1]]$cpar[[1]])), simplify = F)
 cpar.b.est <- cpar.b.std <- replicate(n.tau, array(NA, dim = c(1, length(model_boot[[1]][[1]]$cpar[[1]]), K)), simplify = F)
-df.b <- replicate(K, matrix(NA, B, 1), simplify = F)
+df.b <- array(NA, dim = c(B,K,n.tau), dimnames = list(NULL, as.character(1:K), as.character(paste("tau =", tauvec))))
 df.b.est <- df.b.std <- replicate(n.tau, matrix(NA, K, 1, dimnames = list(as.character(c(1:K)), NULL)), simplify = F)
 sigmas.b <- replicate(K, array(NA, dim = c(dims, 1, B)), simplify = F)
 sigmas.b.est <- sigmas.b.std <- replicate(n.tau, array(NA, dim = c(dims, 1, K)), simplify = F)
@@ -248,15 +253,18 @@ for (t in 1:n.tau) {
     for (b in 1:B) {
       betas.b[[k]][,,b] <-  model_boot[[t]][[b]]$betas[[k]] #insieme delle B matrici beta per ogni tau
       cpar.b[[k]][b,] <- model_boot[[t]][[b]]$cpar[[k]]
-      df.b[[k]][b] <- model_boot[[t]][[b]]$df[[k]]
+      # df.b[[k]][b] <- model_boot[[t]][[b]]$df[[k]]
+      df.b[b,k,t] <- model_boot[[t]][[b]]$df[[k]]
       sigmas.b[[k]][,,b] <- model_boot[[t]][[b]]$sigma[[k]]
     } #b loop
     betas.b.est[[t]][,,k] <- apply(betas.b[[k]], c(1,2), mean)
     betas.b.std[[t]][,,k] <- apply(betas.b[[k]], c(1,2), fBasics::stdev)
     cpar.b.est[[t]][,,k] <- colMeans(cpar.b[[k]])
     cpar.b.std[[t]][,,k] <- apply(cpar.b[[k]], 2, fBasics::stdev)
-    df.b.est[[t]][k,] <- apply(df.b[[k]], 2, mean)
-    df.b.std[[t]][k,] <- apply(df.b[[k]], 2, fBasics::stdev)
+    # df.b.est[[t]][k,] <- apply(df.b[,k,t], 2, mean)
+    # df.b.std[[t]][k,] <- apply(df.b[,k,t], 2, fBasics::stdev)
+    df.b.est[[t]][k,] <- mean(df.b[,k,t], na.rm = TRUE)
+    df.b.std[[t]][k,] <- fBasics::stdev(df.b[,k,t])
     sigmas.b.est[[t]][,,k] <- apply(sigmas.b[[k]], c(1,2), mean)
     sigmas.b.std[[t]][,,k] <- apply(sigmas.b[[k]], c(1,2), fBasics::stdev)
     test_statistic[[t]][,,k] <- abs(betas.est[[t]][,,k]/betas.b.std[[t]][,,k]) # > 1.96
@@ -265,8 +273,9 @@ for (t in 1:n.tau) {
 }
 
 
-if(model == "expectile"){
-  save.image(file = "realdata_cexp_2K_t.RData")
-} else if(model == "quantile"){
-  save.image(file = "realdata_cquant_2K_t.RData")
+if(model_reg == "expectile"){
+  save.image(file = paste0("realdata_cexp_",K,"K_",wcop,".RData"))
+} else if(model_reg == "quantile"){
+  save.image(file = paste0("realdata_cquant_",K,"K_",wcop,".RData"))
 }
+
