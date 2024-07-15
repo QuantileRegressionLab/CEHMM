@@ -1,9 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-
 # README file
 
 The scripts in this repository are designed to evaluate the performance of the research detailed in [*Quantile and Expectile Copula-Based Hidden Markov Regression Models for the Analysis of the Cryptocurrency Market* by Foroni, Merlo, and Petrella (2024)](https://doi.org/10.48550/arXiv.2307.06400). This evaluation includes a simulation study of copula-based quantile and expectile Hidden Markov Models (CQHMM and CEHMM) and an application of these models to a dataset of financial returns.
@@ -50,15 +44,15 @@ The scripts in this repository are designed to evaluate the performance of the r
 
 ## Simulation_1Y.R
 
-This script evaluates the performance of the CQHMM and CEHMM models generating data from a bivariate two-states HMM using the following data generating process for \( t = 1,...,T \),
+This script evaluates the performance of the CQHMM and CEHMM models generating data from a bivariate two-states HMM using the following data generating process for $` t = 1,...,T `$,
 
-\[
+```math
 \boldsymbol{Y}_t = \boldsymbol{X}_t \boldsymbol{\beta}_k + \boldsymbol{\epsilon}_{t,k}, \quad S_t = k
-\]
+```
 
-where \(\boldsymbol{X}_t = (1, X_t)'\) and the true values of the regression parameters are
+where $` \boldsymbol{X}_t = (1, X_t)'`$ and the true values of the regression parameters are
 
-\[
+```math
 \boldsymbol{\beta}_1 = \begin{pmatrix}
     -2 & 3 \\
     1 & -2
@@ -66,25 +60,25 @@ where \(\boldsymbol{X}_t = (1, X_t)'\) and the true values of the regression par
     3 & -2 \\
     -2 & 1
 \end{pmatrix}.
-\]
+```
 
 It is possible to choose between two different scenarios for the transition probability matrix, scenario 1: 
 
-\[
+```math
 \boldsymbol{\Pi} = \begin{pmatrix}
     0.9 & 0.1 \\
     0.1 & 0.9
 \end{pmatrix},
-\]
+```
 
 scenario 2: 
 
-\[
+```math
 \boldsymbol{\Pi} = \begin{pmatrix}
     0.7 & 0.3 \\
     0.3 & 0.7
 \end{pmatrix}.
-\]
+```
 
 
 ### Running the Script
@@ -97,23 +91,23 @@ scenario 2:
 
 ## Simulation_4Y.R
 
-This script evaluates the performance of the CQHMM and CEHMM models considering a four-dimensional response variable (\(d=4\)), one sample size (\(T = 1000\)) and three explanatory variables, \(X^{(1)}_t\), \(X^{(2)}_t\) and \(X^{(3)}_t\) sampled from independent standard Normal distributions. Observations are drawn from a three-state HMM using the following data generating process for \(t = 1,\dots,T\),
+This script evaluates the performance of the CQHMM and CEHMM models considering a four-dimensional response variable $` d=4 `$ , one sample size $` T = 1000 `$ and three explanatory variables, $` X^{(1)}_t `$, $` X^{(2)}_t `$ and $` X^{(3)}_t `$ sampled from independent standard Normal distributions. Observations are drawn from a three-state HMM using the following data generating process for $` t = 1,\dots,T `$,
 
-\[
+```math
 \boldsymbol{Y}_t = \boldsymbol{X}_t \boldsymbol{\beta}_k + \boldsymbol{\epsilon}_{t,k}, \quad S_t = k
-\]
+```
 
-where \(\boldsymbol{X}_t = (1, X^{(1)}_t, X^{(2)}_t, X^{(3)}_t)'\) and the true values of the state-specific intercepts are drawn from Uniform distributions defined by: \(\mathcal{U}(-3, -1)\), \(\mathcal{U}(-1, 2)\), and \(\mathcal{U}(3, 5)\), while slope parameters are generated from the following uniform distribution for each state: \( \mathcal{U}(-2, 2)\).
+where $` \boldsymbol{X}_t = (1, X^{(1)}_t, X^{(2)}_t, X^{(3)}_t)' `$ and the true values of the state-specific intercepts are drawn from Uniform distributions defined by: $` \mathcal{U}(-3, -1) `$, $` \mathcal{U}(-1, 2) `$, and $` \mathcal{U}(3, 5) `$, while slope parameters are generated from the following uniform distribution for each state: $` \mathcal{U}(-2, 2) `$.
 
 We consider the following transition probability matrix:
 
-\[
+```math
 \boldsymbol{\Pi} = \begin{pmatrix}
     0.9 & 0.05 & 0.05 \\
     0.05 & 0.9 & 0.05 \\
     0.05 & 0.05 & 0.9
 \end{pmatrix}.
-\]
+```
 
 
 ### Running the Script
