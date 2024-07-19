@@ -119,15 +119,14 @@ ret_plot <- ggplot(gg, aes(x = Date, y = Log.Return, color = Cryptocurrency)) +
   scale_x_date(date_labels = c("%Y"), breaks = "1 year")
 # geom_vline(xintercept = as.numeric(date[c(106, 654, 820, 1146)]), linetype = 4, colour = "black")
 
-# Load prices data
-load("data/price_xts.RData")
+# Load data prices
+load("data/prices_df.RData")
 # Function for normalizing time series data
 normalTS <- function(x) (x - min(x)) / (max(x) - min(x))
 
 # Normalize the prices data
-prices <- as.data.frame(pf.xts)
-prices_norm <- apply(prices, 2, normalTS)
-date <- as.Date(rownames(prices))
+prices_norm <- apply(pf.df, 2, normalTS)
+date <- as.Date(rownames(pf.df))
 
 # Prepare the data for plotting normalized prices
 prices_plots_df <- data.frame(date, 
