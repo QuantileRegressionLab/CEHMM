@@ -109,6 +109,7 @@ colnames(ret_plots_df) <- c("Date", paste(colnames(ret_all)[1:5]))
 # Melt the data for ggplot
 gg <- melt(ret_plots_df, id = "Date", variable.name = "Cryptocurrency", value.name = "Log.Return")
 
+
 # Create the returns plot
 ret_plot <- ggplot(gg, aes(x = Date, y = Log.Return, color = Cryptocurrency)) +
   theme(legend.text = element_text(size = 20), legend.title = element_text(size = 20),
@@ -116,7 +117,15 @@ ret_plot <- ggplot(gg, aes(x = Date, y = Log.Return, color = Cryptocurrency)) +
         axis.title.y = element_text(size = 28), axis.text.x = element_text(size = 20), 
         axis.text.y = element_text(size = 20)) +
   geom_point(alpha = 0) + geom_line(alpha = 0.8) +
-  scale_x_date(date_labels = c("%Y"), breaks = "1 year")
+  scale_x_date(date_labels = c("%Y"), breaks = "1 year") + 
+  annotate("rect", xmin = as.Date("2017-11-01"), xmax = as.Date("2018-02-01"), ymin = -Inf, ymax = Inf,
+           alpha = 0.2, color = "gray") +
+  annotate("rect", xmin = as.Date("2018-09-01"), xmax = as.Date("2019-01-01"), ymin = -Inf, ymax = Inf,
+           alpha = 0.2, color = "gray") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2020-03-30"), ymin = -Inf, ymax = Inf,
+           alpha = 0.2, color = "gray") +
+  annotate("rect", xmin = as.Date("2020-11-01"), xmax = as.Date("2021-07-01"), ymin = -Inf, ymax = Inf,
+           alpha = 0.2, color = "gray") 
 # geom_vline(xintercept = as.numeric(date[c(106, 654, 820, 1146)]), linetype = 4, colour = "black")
 
 # Load data prices
