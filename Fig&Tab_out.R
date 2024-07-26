@@ -111,11 +111,11 @@ gg <- melt(ret_plots_df, id = "Date", variable.name = "Cryptocurrency", value.na
 
 
 # Create the returns plot
-ret_plot <- ggplot(gg, aes(x = Date, y = Log.Return, color = Cryptocurrency)) +
-  theme(legend.text = element_text(size = 20), legend.title = element_text(size = 20),
+ret_plot <- ggplot(gg, aes(x = Date, y = Log.Return, color = Cryptocurrency)) + ylab("Log Returns") +
+  theme(legend.text = element_text(size = 24), legend.title = element_text(size = 24),
         axis.title.x = element_text(size = 28),
-        axis.title.y = element_text(size = 28), axis.text.x = element_text(size = 20), 
-        axis.text.y = element_text(size = 20)) +
+        axis.title.y = element_text(size = 28), axis.text.x = element_text(size = 24), 
+        axis.text.y = element_text(size = 24)) +
   geom_point(alpha = 0) + geom_line(alpha = 0.8) +
   scale_x_date(date_labels = c("%Y"), breaks = "1 year") + 
   annotate("rect", xmin = as.Date("2017-11-01"), xmax = as.Date("2018-02-01"), ymin = -Inf, ymax = Inf,
@@ -147,10 +147,10 @@ gg <- melt(prices_plots_df, id = "Date", variable.name = "Cryptocurrency", value
 
 # Create the prices plot
 prices_plot <- ggplot(gg, aes(x = Date, y = Price, color = Cryptocurrency)) +
-  theme(legend.text = element_text(size = 20), legend.title = element_text(size = 20),
+  theme(legend.text = element_text(size = 24), legend.title = element_text(size = 24),
         axis.title.x = element_text(size = 28),
-        axis.title.y = element_text(size = 28), axis.text.x = element_text(size = 20), 
-        axis.text.y = element_text(size = 20)) +
+        axis.title.y = element_text(size = 28), axis.text.x = element_text(size = 24), 
+        axis.text.y = element_text(size = 24)) +
   geom_point(alpha = 0) + geom_line() +
   scale_x_date(date_labels = c("%Y"), breaks = "1 year")
 # scale_y_log10(labels = scales::label_number(scale_cut = scales::cut_short_scale())) #+
